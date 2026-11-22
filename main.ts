@@ -29,13 +29,14 @@ if (existsSync(join(repoRoot, 'screenshots'))) {
 
 // The dossier: the judge's view of the game, built by the kit's library
 // with the same caps the gate enforces, so what we write is what it checks.
-writeFileSync(
-  join(outDir, 'dossier.json'),
-  buildDossier(outDir, {
-    text_max_bytes: 163840,
-    screenshots: { max: 4, max_bytes: 262144 },
-    game_max_files: 993,
-    game_max_bytes: 50331648,
-    game_path_max_bytes: 1000,
-  }),
-);
+const dossier = buildDossier(outDir, {
+  text_max_bytes: 163840,
+  screenshots: { max: 4, max_bytes: 262144 },
+  game_max_files: 993,
+  game_max_bytes: 50331648,
+  game_path_max_bytes: 1000,
+});
+writeFileSync(join(outDir, 'dossier.json'), dossier);
+
+// A one-line receipt on stdout: the hand-in is done when this prints.
+console.log(`The Velvet Vault handed in: dossier ${dossier.length} bytes in ${outDir}`);

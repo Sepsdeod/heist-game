@@ -116,9 +116,9 @@ function drawCamera(ctx, camera, now) {
     ? 'rgba(255,90,90,0.16)'
     : 'rgba(255,90,90,0.30)';
   drawCone(ctx, camera.x, camera.y, camera.angle, 235, 0.5, color, 'rgba(255,90,90,0.5)');
-  // The camera dome on its wall mount.
+  // The camera dome on its wall mount (mx, my); the cone starts at its eye.
   ctx.save();
-  ctx.translate(camera.x, camera.y);
+  ctx.translate(camera.mx, camera.my);
   ctx.rotate(camera.angle);
   ctx.fillStyle = '#20242e';
   ctx.fillRect(-4, -7, 18, 14);

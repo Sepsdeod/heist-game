@@ -61,9 +61,16 @@ export function startRoom(game) {
     };
   });
   room.cameras = room.cameras.map((c) => {
-    const pos = tileCenter({ x: c.tile[0], y: c.tile[1] });
+    const mount = tileCenter({ x: c.tile[0], y: c.tile[1] });
+    // The eye sits just off the wall's inner face, in the floor: a camera
+    // mounted inside a wall tile would otherwise blind itself with its own tile.
+    const eye = {
+      x: mount.x + Math.cos(c.facing) * (TILE / 2 + 1),
+      y: mount.y + Math.sin(c.facing) * (TILE / 2 + 1),
+    };
     return {
-      x: pos.x, y: pos.y, baseAngle: c.facing, sweep: c.sweep,
+      x: eye.x, y: eye.y, mx: mount.x, my: mount.y,
+      baseAngle: c.facing, sweep: c.sweep,
       angle: c.facing, phase: Math.random() * Math.PI * 2,
       seeing: false, blind: 0, beeped: false,
     };
@@ -101,6 +108,8 @@ function circleFree(room, x, y, r) {
 }
 
 // Walk a ray in small steps; a wall or display case anywhere along it blocks sight.
+// The first 14 px are skipped: a wall-mounted camera stands inside its own
+// wall tile, and that tile must not blind it.
 export function lineOfSight(room, x0, y0, x1, y1) {
   const dx = x1 - x0;
   const dy = y1 - y0;
@@ -108,6 +117,7 @@ export function lineOfSight(room, x0, y0, x1, y1) {
   const steps = Math.max(1, Math.ceil(dist / 8));
   for (let i = 1; i < steps; i++) {
     const t = i / steps;
+    if (t * dist < 14) continue;
     const tile = tileAt(room, x0 + dx * t, y0 + dy * t);
     if (isSolidTile(room.grid, tile.x, tile.y)) return false;
   }
